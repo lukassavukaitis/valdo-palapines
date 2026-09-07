@@ -1,0 +1,22 @@
+# www -> be www (apex), 301 nukreipimas
+www.valdopalapines.lt {
+	redir https://valdopalapines.lt{uri} permanent
+}
+
+valdopalapines.lt {
+	# Kompresija: zstd (geriau nei brotli) + gzip. Automatinis Let's Encrypt SSL.
+	# Pastaba: on-the-fly Brotli stock Caddy neturi — reikėtų xcaddy custom build
+	# su „caddy-brotli". zstd praktiškai lenkia brotli, tad to nereikia.
+	encode zstd gzip
+
+	# Saugumo antraštės
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "SAMEORIGIN"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		-Server
+	}
+
+	reverse_proxy web:3000
+}

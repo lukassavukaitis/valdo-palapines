@@ -1,0 +1,52 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Design tokens — pasiekiami ir per CSS var, ir per Tailwind (žr. tailwind.config.ts) */
+:root {
+  --ivory: 251 249 244;   /* #FBF9F4 */
+  --sand: 239 233 221;    /* #EFE9DD */
+  --ink: 26 27 24;        /* #1A1B18 */
+  --forest: 47 74 60;     /* #2F4A3C */
+  --gold: 176 141 76;     /* #B08D4C */
+  --stone: 107 110 102;   /* #6B6E66 */
+}
+
+@layer base {
+  body {
+    @apply bg-ivory text-ink antialiased;
+    font-feature-settings: "liga" 1, "calt" 1;
+  }
+  h1, h2, h3 {
+    @apply font-display tracking-tight;
+  }
+}
+
+@layer components {
+  /* Glassmorphism juosta navigacijai */
+  .glass {
+    @apply bg-ivory/70 backdrop-blur-md backdrop-saturate-150
+           border-b border-ink/5;
+  }
+  /* Pirminis CTA */
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-full
+           bg-forest px-6 py-3 text-sm font-medium text-ivory
+           transition-colors hover:bg-forest/90
+           focus-visible:outline focus-visible:outline-2
+           focus-visible:outline-offset-2 focus-visible:outline-gold;
+  }
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 rounded-full
+           border border-ink/15 px-6 py-3 text-sm font-medium text-ink
+           transition-colors hover:border-forest hover:text-forest;
+  }
+}
+
+/* Gerbiam reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

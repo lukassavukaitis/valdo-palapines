@@ -1,0 +1,39 @@
+"use client";
+
+/** Vartotojo slapukų sutikimas — laikomas localStorage, be jokių išorinių įrankių. */
+export type Consent = {
+  necessary: true; // visada true — būtini svetainės veikimui
+  analytics: boolean;
+  marketing: boolean;
+  ts: number; // kada duotas (auditui)
+};
+
+const KEY = "vp-consent-v1";
+export const CONSENT_EVENT = "vp-consent-change";
+
+export function getConsent(): Consent | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = localStorage.getItem(KEY);
+    return raw ? (JSON.parse(raw) as Consent) : null;
+  } catch {
+    return null;
+  }
+}
+
+export function saveConsent(partial: { analytics: boolean; marketing: boolean }) {
+  const consent: Consent = {
+    necessary: true,
+    analytics: partial.analytics,
+    marketing: partial.marketing,
+    ts: Date.now(),
+  };
+  try {
+    localStorage.setItem(KEY, JSON.stringify(consent));
+  } catch {
+    /* localStorage neprieinamas — tyliai praleidžiam */
+  }
+  // Praneša analitikos komponentui, kad sutikimas pasikeitė (be perkrovimo)
+  window.dispatchEvent(new CustomEvent<Consent>(CONSENT_EVENT, { detail: consent }));
+  return consent;
+}

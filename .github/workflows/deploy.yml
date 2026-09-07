@@ -1,0 +1,58 @@
+name: Deploy to Hetzner
+
+on:
+  push:
+    branches: [main]
+
+# Vienu metu tik vienas deploy'us; naujas nutraukia senstelėjusį
+concurrency:
+  group: deploy-production
+  cancel-in-progress: true
+
+jobs:
+  # 1) Kokybės vartai — lint, typecheck ir build (pagauna klaidas PRIEŠ deploy)
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Įdiegti priklausomybes
+        run: npm ci
+
+      - name: ESLint
+        run: npm run lint
+
+      - name: TypeScript patikra
+        run: npm run typecheck
+
+      - name: Bandomasis build (patikrina, ar Docker build praeis)
+        run: npm run build
+        env:
+          NEXT_PUBLIC_SITE_URL: https://valdopalapines.lt
+          NEXT_PUBLIC_SANITY_PROJECT_ID: ${{ secrets.NEXT_PUBLIC_SANITY_PROJECT_ID }}
+          NEXT_PUBLIC_SANITY_DATASET: production
+
+  # 2) Deploy — SSH į Hetzner, git pull + docker compose rebuild
+  deploy:
+    needs: quality
+    runs-on: ubuntu-latest
+    steps:
+      - name: SSH deploy į serverį
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          script: |
+            set -e
+            cd /opt/valdopalapines
+            git pull origin main
+            docker compose build
+            docker compose up -d --remove-orphans
+            docker image prune -f
