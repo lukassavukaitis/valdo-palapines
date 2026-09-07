@@ -21,6 +21,17 @@ export function getConsent(): Consent | null {
   }
 }
 
+/** Perduoda sutikimą Google Consent Mode v2 (jei gtag jau apibrėžtas). */
+function pushToGoogleConsentMode(c: { analytics: boolean; marketing: boolean }) {
+  if (typeof window === "undefined" || typeof window.gtag !== "function") return;
+  window.gtag("consent", "update", {
+    analytics_storage: c.analytics ? "granted" : "denied",
+    ad_storage: c.marketing ? "granted" : "denied",
+    ad_user_data: c.marketing ? "granted" : "denied",
+    ad_personalization: c.marketing ? "granted" : "denied",
+  });
+}
+
 export function saveConsent(partial: { analytics: boolean; marketing: boolean }) {
   const consent: Consent = {
     necessary: true,
@@ -33,7 +44,9 @@ export function saveConsent(partial: { analytics: boolean; marketing: boolean })
   } catch {
     /* localStorage neprieinamas — tyliai praleidžiam */
   }
-  // Praneša analitikos komponentui, kad sutikimas pasikeitė (be perkrovimo)
+  // 1) Google Consent Mode v2 atnaujinimas
+  pushToGoogleConsentMode(partial);
+  // 2) Praneša Analytics komponentui (Meta Pixel įkėlimui) be perkrovimo
   window.dispatchEvent(new CustomEvent<Consent>(CONSENT_EVENT, { detail: consent }));
   return consent;
 }

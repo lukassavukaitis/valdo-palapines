@@ -7,6 +7,7 @@ import { Navbar } from "@/components/site/navbar";
 import { Footer } from "@/components/site/footer";
 import { CookieBanner } from "@/components/ui/cookie-banner";
 import { Analytics } from "@/components/analytics/analytics";
+import { ConsentModeInit } from "@/components/analytics/consent-mode";
 
 const display = Cormorant_Garamond({
   subsets: ["latin", "latin-ext"], // latin-ext -> lietuviški ą č ę ...
@@ -51,6 +52,7 @@ export default function RootLayout({
   return (
     <html lang="lt" className={`${display.variable} ${sans.variable}`}>
       <body className="font-sans">
+        <ConsentModeInit />
         <LocalBusinessJsonLd />
         <Navbar />
         <main>{children}</main>

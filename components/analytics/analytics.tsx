@@ -8,8 +8,12 @@ const GA_ID = process.env.NEXT_PUBLIC_GA_ID;
 const PIXEL_ID = process.env.NEXT_PUBLIC_META_PIXEL_ID;
 
 /**
- * Įkelia GA4 ir Meta Pixel TIK gavus atitinkamą sutikimą (privacy-first).
- * Reaguoja į sutikimo pakeitimą be puslapio perkrovimo.
+ * GA4 kraunamas su Consent Mode v2 (numatytas „denied" nustatytas
+ * components/analytics/consent-mode.tsx). Denied būsenoje GA siunčia tik
+ * beslapukius modeliuojamus signalus; sutikus — pilną matavimą.
+ *
+ * Meta Pixel neturi Consent Mode analogo, tad jį kraunam TIK gavus „rinkodaros"
+ * sutikimą.
  */
 export function Analytics() {
   const [consent, setConsent] = useState<Consent | null>(null);
@@ -23,26 +27,20 @@ export function Analytics() {
 
   return (
     <>
-      {/* Google Analytics 4 — tik su „analytics" sutikimu */}
-      {consent?.analytics && GA_ID && (
+      {/* GA4 — kraunamas visada; saugojimą valdo Consent Mode */}
+      {GA_ID && (
         <>
           <Script
             src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`}
             strategy="afterInteractive"
           />
-          <Script id="ga4-init" strategy="afterInteractive">
-            {`
-              window.dataLayer = window.dataLayer || [];
-              function gtag(){dataLayer.push(arguments);}
-              window.gtag = gtag;
-              gtag('js', new Date());
-              gtag('config', '${GA_ID}', { anonymize_ip: true });
-            `}
+          <Script id="ga4-config" strategy="afterInteractive">
+            {`gtag('config', '${GA_ID}', { anonymize_ip: true });`}
           </Script>
         </>
       )}
 
-      {/* Meta Pixel — tik su „marketing" sutikimu */}
+      {/* Meta Pixel — tik su „rinkodaros" sutikimu */}
       {consent?.marketing && PIXEL_ID && (
         <Script id="meta-pixel" strategy="afterInteractive">
           {`

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { sendQuoteEmail } from "@/lib/email";
+import { sendMetaCapiLead } from "@/lib/meta-capi";
 import { rateLimit, getClientIp } from "@/lib/ratelimit";
 
 export const runtime = "nodejs";
@@ -23,6 +24,7 @@ const quoteSchema = z.object({
   gdpr: z.literal(true, { errorMap: () => ({ message: "Reikalingas sutikimas" }) }),
   website: z.string().max(0).optional(), // honeypot — turi likti tuščias
   turnstileToken: z.string().optional(),
+  metaEventId: z.string().optional(), // dedup su naršyklės Meta Pixel
 });
 
 /* ---------------- Cloudflare Turnstile patikra ---------------- */
@@ -88,10 +90,9 @@ export async function POST(req: Request) {
     );
   }
 
-  // 5) Siunčiam laišką
+  // 5) Siunčiam laišką (svarbiausias veiksmas)
   try {
     await sendQuoteEmail(data);
-    return NextResponse.json({ ok: true });
   } catch (err) {
     console.error("Quote email error:", err);
     return NextResponse.json(
@@ -99,4 +100,23 @@ export async function POST(req: Request) {
       { status: 500 }
     );
   }
+
+  // 6) Meta CAPI (server-side Lead) — nebūtinas; niekada neblokuoja atsakymo
+  if (data.metaEventId) {
+    try {
+      await sendMetaCapiLead({
+        eventId: data.metaEventId,
+        email: data.email,
+        phone: data.phone,
+        eventType: data.eventType,
+        sourceUrl: req.headers.get("referer") ?? undefined,
+        clientIp: ip,
+        userAgent: req.headers.get("user-agent") ?? undefined,
+      });
+    } catch (err) {
+      console.error("Meta CAPI error (nekritinė):", err);
+    }
+  }
+
+  return NextResponse.json({ ok: true });
 }

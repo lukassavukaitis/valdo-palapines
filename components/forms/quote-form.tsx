@@ -75,6 +75,11 @@ export function QuoteForm({
     if (!validate(3)) return;
     setStatus("submitting");
     setServerError(null);
+    // Bendras įvykio ID naršyklės Pixel ir serverio CAPI dedublikacijai
+    const eventId =
+      typeof crypto !== "undefined" && crypto.randomUUID
+        ? crypto.randomUUID()
+        : String(Date.now());
     try {
       const res = await fetch("/api/quote", {
         method: "POST",
@@ -83,6 +88,7 @@ export function QuoteForm({
           ...form,
           items: items.map((i) => ({ name: i.name })),
           turnstileToken,
+          metaEventId: eventId,
         }),
       });
       if (!res.ok) {
@@ -90,7 +96,7 @@ export function QuoteForm({
         throw new Error(data.error || "Nepavyko išsiųsti");
       }
       setStatus("success");
-      trackLead({ eventType: form.eventType, city: form.city });
+      trackLead({ eventType: form.eventType, city: form.city, eventId });
     } catch (err) {
       setStatus("error");
       setServerError(err instanceof Error ? err.message : "Nepavyko išsiųsti");
