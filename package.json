@@ -13,7 +13,7 @@
   "dependencies": {
     "@portabletext/react": "^3.2.4",
     "@sanity/client": "^6.21.3",
-    "@sanity/image-url": "^1.2.0",
+    "@sanity/image-url": "^2.1.1",
     "@sanity/vision": "^3.57.0",
     "@sanity/webhook": "^4.0.4",
     "framer-motion": "^11.18.2",
