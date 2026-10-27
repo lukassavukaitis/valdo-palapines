@@ -8,18 +8,19 @@ export const runtime = "nodejs";
 
 /* ---------------- Įvesties validacija (Zod) ---------------- */
 const quoteSchema = z.object({
-  eventType: z.string().min(1, "Pasirinkite renginio tipą"),
-  date: z.string().min(1, "Nurodykite datą"),
+  eventType: z.string().min(1, "Pasirinkite renginio tipą").max(100),
+  date: z.string().min(1, "Nurodykite datą").max(50),
   guests: z
     .string()
     .min(1)
+    .max(6)
     .refine((v) => Number(v) >= 1, "Įveskite svečių skaičių"),
-  city: z.string().min(1, "Nurodykite miestą"),
-  venue: z.string().optional().default(""),
-  items: z.array(z.object({ name: z.string() })).optional().default([]),
-  name: z.string().min(1, "Įveskite vardą"),
-  email: z.string().email("Neteisingas el. paštas"),
-  phone: z.string().min(6, "Įveskite telefoną"),
+  city: z.string().min(1, "Nurodykite miestą").max(100),
+  venue: z.string().max(300).optional().default(""),
+  items: z.array(z.object({ name: z.string().max(200) })).max(50).optional().default([]),
+  name: z.string().min(1, "Įveskite vardą").max(100),
+  email: z.string().email("Neteisingas el. paštas").max(200),
+  phone: z.string().min(6, "Įveskite telefoną").max(40),
   message: z.string().max(2000).optional().default(""),
   gdpr: z.literal(true, { errorMap: () => ({ message: "Reikalingas sutikimas" }) }),
   website: z.string().max(0).optional(), // honeypot — turi likti tuščias
@@ -58,10 +59,14 @@ export async function POST(req: Request) {
     );
   }
 
-  // 2) Parsinam + validuojam
+  // 2) Parsinam + validuojam (korektiškos formos užklausa telpa į kelis KB)
+  const raw = await req.text();
+  if (raw.length > 20_000) {
+    return NextResponse.json({ error: "Per didelė užklausa" }, { status: 413 });
+  }
   let body: unknown;
   try {
-    body = await req.json();
+    body = JSON.parse(raw);
   } catch {
     return NextResponse.json({ error: "Blogas užklausos formatas" }, { status: 400 });
   }

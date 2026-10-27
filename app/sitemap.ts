@@ -1,33 +1,27 @@
 import type { MetadataRoute } from "next";
 import { SITE } from "@/lib/metadata";
-// import { getAllPostSlugs, getAllServiceSlugs } from "@/sanity/queries";
+import { getPostSlugs, getServiceSlugs } from "@/lib/sanity.queries";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const staticRoutes = [
-    "",
-    "/galerija",
-    "/duk",
-    "/straipsniai",
-    "/kontaktai",
-    "/paslaugos/palapines",
-    "/paslaugos/baldai",
-    "/paslaugos/tekstile",
-    "/paslaugos/apsvietimas",
-  ].map((path) => ({
+  const [services, posts] = await Promise.all([getServiceSlugs(), getPostSlugs()]);
+
+  const entry = (
+    path: string,
+    priority: number,
+    changeFrequency: "weekly" | "monthly"
+  ) => ({
     url: new URL(path, SITE.url).toString(),
     lastModified: new Date(),
-    changeFrequency: "weekly" as const,
-    priority: path === "" ? 1 : 0.7,
-  }));
+    changeFrequency,
+    priority,
+  });
 
-  // Dinaminis turinys iš Sanity — atkomentuoti prijungus queries:
-  // const posts = await getAllPostSlugs();
-  // const postRoutes = posts.map((slug) => ({
-  //   url: `${SITE.url}/straipsniai/${slug}`,
-  //   lastModified: new Date(),
-  //   changeFrequency: "monthly" as const,
-  //   priority: 0.6,
-  // }));
-
-  return [...staticRoutes /*, ...postRoutes */];
+  return [
+    entry("", 1, "weekly"),
+    entry("/straipsniai", 0.7, "weekly"),
+    entry("/nuomos-taisykles", 0.4, "monthly"),
+    entry("/privatumo-politika", 0.3, "monthly"),
+    ...services.map((s) => entry(`/paslaugos/${s.slug}`, 0.7, "weekly")),
+    ...posts.map((p) => entry(`/straipsniai/${p.slug}`, 0.6, "monthly")),
+  ];
 }

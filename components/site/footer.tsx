@@ -30,7 +30,7 @@ export async function Footer() {
           <h3 className="font-display text-lg font-semibold">Nuorodos</h3>
           <ul className="mt-3 space-y-2 text-sm text-ivory/70">
             <li><Link href="/#katalogas" className="hover:text-ivory">Inventorius</Link></li>
-            <li><Link href="/galerija" className="hover:text-ivory">Galerija</Link></li>
+            <li><Link href="/#galerija" className="hover:text-ivory">Galerija</Link></li>
             <li><Link href="/straipsniai" className="hover:text-ivory">Straipsniai</Link></li>
             <li><Link href="/nuomos-taisykles" className="hover:text-ivory">Nuomos taisyklės</Link></li>
             <li><Link href="/#duk" className="hover:text-ivory">D.U.K.</Link></li>

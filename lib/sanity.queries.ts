@@ -44,7 +44,7 @@ export function getServices() {
 export function getServiceBySlug(slug: string) {
   return safe(
     sanityFetch<Service | null>(
-      `*[_type == "service" && slug.current == $slug][0] ${serviceProjection}`,
+      `*[_type == "service" && slug.current == $slug && ${PUBLISHED}][0] ${serviceProjection}`,
       { slug },
       { tags: ["service"] }
     ),
@@ -55,7 +55,7 @@ export function getServiceBySlug(slug: string) {
 export function getServiceSlugs() {
   return safe(
     sanityFetch<{ slug: string }[]>(
-      `*[_type == "service" && defined(slug.current)]{ "slug": slug.current }`,
+      `*[_type == "service" && defined(slug.current) && ${PUBLISHED}]{ "slug": slug.current }`,
       {},
       { tags: ["service"], revalidate: 3600 }
     ),
@@ -81,7 +81,7 @@ export function getPosts() {
 export function getPostBySlug(slug: string) {
   return safe(
     sanityFetch<Post | null>(
-    `*[_type == "post" && slug.current == $slug][0]{
+    `*[_type == "post" && slug.current == $slug && ${PUBLISHED}][0]{
       _id, title, "slug": slug.current, excerpt, category, publishedAt,
       "coverUrl": coverImage.asset->url, "coverAlt": coverImage.alt,
       body,
@@ -100,7 +100,7 @@ export function getPostBySlug(slug: string) {
 export function getPostSlugs() {
   return safe(
     sanityFetch<{ slug: string }[]>(
-      `*[_type == "post" && defined(slug.current)]{ "slug": slug.current }`,
+      `*[_type == "post" && defined(slug.current) && ${PUBLISHED}]{ "slug": slug.current }`,
       {},
       { tags: ["post"], revalidate: 3600 }
     ),
@@ -112,7 +112,7 @@ export function getPostSlugs() {
 export function getGalleryImages() {
   return safe(
     sanityFetch<GalleryImage[]>(
-    `*[_type == "galleryImage"] | order(featured desc, _createdAt desc){
+    `*[_type == "galleryImage" && ${PUBLISHED}] | order(featured desc, _createdAt desc){
       _id, category, caption, featured,
       "url": image.asset->url,
       "alt": image.alt,
@@ -130,7 +130,7 @@ export function getGalleryImages() {
 export function getTestimonials() {
   return safe(
     sanityFetch<Testimonial[]>(
-      `*[_type == "testimonial"] | order(_createdAt desc){
+      `*[_type == "testimonial" && ${PUBLISHED}] | order(_createdAt desc){
       _id, author, event, quote, rating
     }`,
       {},
@@ -144,7 +144,7 @@ export function getTestimonials() {
 export function getSiteSettings() {
   return safe(
     sanityFetch<SiteSettings | null>(
-      `*[_type == "siteSettings"][0]{ phone, email, facebook, instagram, companyDetails }`,
+      `*[_type == "siteSettings" && ${PUBLISHED}][0]{ phone, email, facebook, instagram, companyDetails }`,
       {},
       { tags: ["siteSettings"], revalidate: 300 }
     ),

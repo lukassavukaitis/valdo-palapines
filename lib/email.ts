@@ -24,7 +24,17 @@ type QuotePayload = {
 };
 
 /* ---------- HTML laiško šablonas (firminis: žalia / auksas / dramblio kaulas) ---------- */
+/** Visi vartotojo laukai eina į HTML — būtina išvengti žymių injekcijos. */
+const esc = (v: string) =>
+  v
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+
 function renderEmail(d: QuotePayload): string {
+  // `value` yra jau saugus HTML (žr. esc); žinutės eilutės lūžiai išlaikomi
   const row = (label: string, value?: string) =>
     value
       ? `<tr>
@@ -33,9 +43,13 @@ function renderEmail(d: QuotePayload): string {
          </tr>`
       : "";
 
+  const phoneTel = esc(d.phone.replace(/[^\d+]/g, ""));
+  const phone = esc(d.phone);
+  const email = esc(d.email);
+
   const items =
     d.items && d.items.length
-      ? d.items.map((i) => `<li style="margin:2px 0">${i.name}</li>`).join("")
+      ? d.items.map((i) => `<li style="margin:2px 0">${esc(i.name)}</li>`).join("")
       : "<li style='color:#6B6E66'>Nepasirinkta — pasiūlyti pagal renginį</li>";
 
   return `
@@ -51,11 +65,11 @@ function renderEmail(d: QuotePayload): string {
         <td style="padding:28px 32px">
           <h2 style="margin:0 0 4px;color:#1A1B18;font-size:18px">Renginio informacija</h2>
           <table role="presentation" width="100%" style="border-collapse:collapse">
-            ${row("Renginio tipas", d.eventType)}
-            ${row("Data", d.date)}
-            ${row("Svečių skaičius", d.guests)}
-            ${row("Miestas", d.city)}
-            ${row("Vieta / adresas", d.venue)}
+            ${row("Renginio tipas", esc(d.eventType))}
+            ${row("Data", esc(d.date))}
+            ${row("Svečių skaičius", esc(d.guests))}
+            ${row("Miestas", esc(d.city))}
+            ${row("Vieta / adresas", d.venue && esc(d.venue))}
           </table>
 
           <h3 style="margin:20px 0 6px;color:#1A1B18;font-size:15px">Pageidaujamas inventorius</h3>
@@ -63,13 +77,13 @@ function renderEmail(d: QuotePayload): string {
 
           <h3 style="margin:20px 0 6px;color:#1A1B18;font-size:15px">Kontaktai</h3>
           <table role="presentation" width="100%" style="border-collapse:collapse">
-            ${row("Vardas", d.name)}
-            ${row("Telefonas", `<a href="tel:${d.phone}" style="color:#2F4A3C">${d.phone}</a>`)}
-            ${row("El. paštas", `<a href="mailto:${d.email}" style="color:#2F4A3C">${d.email}</a>`)}
-            ${row("Žinutė", d.message)}
+            ${row("Vardas", esc(d.name))}
+            ${row("Telefonas", `<a href="tel:${phoneTel}" style="color:#2F4A3C">${phone}</a>`)}
+            ${row("El. paštas", `<a href="mailto:${email}" style="color:#2F4A3C">${email}</a>`)}
+            ${row("Žinutė", d.message && esc(d.message).replace(/\r?\n/g, "<br>"))}
           </table>
 
-          <a href="tel:${d.phone}"
+          <a href="tel:${phoneTel}"
              style="display:inline-block;margin-top:24px;background:#2F4A3C;color:#FBF9F4;text-decoration:none;padding:12px 24px;border-radius:999px;font-size:14px;font-weight:600">
             Skambinti klientui
           </a>
@@ -89,13 +103,16 @@ export async function sendQuoteEmail(d: QuotePayload) {
   const { Resend } = await import("resend");
   const resend = new Resend(process.env.RESEND_API_KEY);
 
-  return resend.emails.send({
+  // Resend SDK nemeta klaidos — grąžina { data, error }; be šios patikros
+  // netinkamas raktas / neverifikuotas domenas tyliai pamestų užklausą.
+  const { error } = await resend.emails.send({
     from: `Valdopalapines.lt <${process.env.QUOTE_FROM_EMAIL}>`,
     to: [process.env.QUOTE_TO_EMAIL!],
     replyTo: d.email, // atsakius laišką — eina tiesiai klientui
-    subject: `Nauja užklausa: ${d.eventType} · ${d.city} · ${d.guests} žm.`,
+    subject: `Nauja užklausa: ${d.eventType} · ${d.city} · ${d.guests} žm.`.replace(/[\r\n]+/g, " "),
     html: renderEmail(d),
   });
+  if (error) throw new Error(`Resend: ${error.name} — ${error.message}`);
 }
 
 /* ---------- B) NODEMAILER + SMTP (alternatyva) ----------

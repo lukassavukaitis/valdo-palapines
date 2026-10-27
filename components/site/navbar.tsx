@@ -5,17 +5,18 @@ import { useEffect, useState } from "react";
 import { Menu, X, ChevronDown } from "lucide-react";
 
 const services = [
-  { label: "Palapinės ir paviljonai", href: "/paslaugos/palapines" },
-  { label: "Baldai", href: "/paslaugos/baldai" },
-  { label: "Tekstilė ir dekoras", href: "/paslaugos/tekstile" },
-  { label: "Apšvietimas ir šildytuvai", href: "/paslaugos/apsvietimas" },
+  // Kategorijų atskirų puslapių nėra — visos veda į katalogą pagrindiniame puslapyje
+  { label: "Palapinės ir paviljonai", href: "/#katalogas" },
+  { label: "Baldai", href: "/#katalogas" },
+  { label: "Tekstilė ir dekoras", href: "/#katalogas" },
+  { label: "Apšvietimas ir šildytuvai", href: "/#katalogas" },
 ];
 
 const nav = [
-  { label: "Galerija", href: "/galerija" },
-  { label: "D.U.K.", href: "/duk" },
+  { label: "Galerija", href: "/#galerija" },
+  { label: "D.U.K.", href: "/#duk" },
   { label: "Straipsniai", href: "/straipsniai" },
-  { label: "Kontaktai", href: "/kontaktai" },
+  { label: "Kontaktai", href: "/#uzklausa" },
 ];
 
 export function Navbar() {
@@ -75,7 +76,7 @@ export function Navbar() {
               <div className="absolute left-0 top-full w-64 rounded-xl2 border border-ink/5 bg-ivory p-2 shadow-lg">
                 {services.map((s) => (
                   <Link
-                    key={s.href}
+                    key={s.label}
                     href={s.href}
                     className="block rounded-lg px-3 py-2 text-sm text-ink/80 hover:bg-sand hover:text-forest"
                   >
@@ -120,7 +121,7 @@ export function Navbar() {
           </p>
           {services.map((s) => (
             <Link
-              key={s.href}
+              key={s.label}
               href={s.href}
               onClick={() => setOpen(false)}
               className="block rounded-lg px-2 py-3 text-base text-ink/90"

@@ -24,6 +24,12 @@ jobs:
       - name: Įdiegti priklausomybes
         run: npm ci
 
+      # TODO: pakeisti į blokuojantį (pašalinti continue-on-error) kai Next bus
+      # atnaujintas į 15.5.x ir Sanity Studio priklausomybės perkeltos į devDependencies
+      - name: Saugumo patikra (produkcinės priklausomybės)
+        run: npm audit --omit=dev --audit-level=high
+        continue-on-error: true
+
       - name: ESLint
         run: npm run lint
 

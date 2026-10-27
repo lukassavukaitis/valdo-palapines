@@ -29,7 +29,12 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Neteisingas parašas" }, { status: 401 });
   }
 
-  const { _type } = JSON.parse(bodyText) as { _type?: string };
+  let _type: string | undefined;
+  try {
+    ({ _type } = JSON.parse(bodyText) as { _type?: string });
+  } catch {
+    return NextResponse.json({ error: "Blogas JSON" }, { status: 400 });
+  }
   if (!_type) {
     return NextResponse.json({ error: "Trūksta _type" }, { status: 400 });
   }

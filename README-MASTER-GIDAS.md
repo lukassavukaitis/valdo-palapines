@@ -1,12 +1,44 @@
 # Valdopalapines.lt — MASTER diegimo ir paleidimo gidas
 
-Vienintelis pilnas techninis vadovas nuo A iki Ž: paskyros → seed → deploy ant
-Hetzner → marketingas. Instrukcija kaimynui (turinio valdymas) — atskirame faile
-`KAIMYNO-VALDYMO-GIDAS.md`.
+Techninis vadovas nuo A iki Ž: paskyros → seed → deploy ant Hetzner. Kiti failai:
+- `KAIMYNO-VALDYMO-GIDAS.md` — turinio valdymas kaimynui (netechninis);
+- `MARKETING.md` — Google/Meta Ads, GA4, SEO (nebūtina diegimui).
 
 > **Reikės:** kompiuterio su `git` ir `Node.js 22`, domeno `valdopalapines.lt`,
 > Hetzner VPS (Ubuntu 24.04), banko kortelės kai kurioms nemokamoms paskyroms
 > patvirtinti.
+
+---
+
+# ETAPAS 0 — Paleidimas lokaliai (testavimui)
+
+Atskira nuo diegimo: tinka norint pamatyti svetainę savo kompiuteryje.
+
+```bash
+# reikia Node.js 22 LTS (https://nodejs.org) ir git
+git clone https://github.com/TAVO-VARDAS/valdopalapines.git
+cd valdopalapines
+npm ci                          # tiksliai pagal package-lock.json
+cp .env.example .env.local      # PowerShell: Copy-Item .env.example .env.local
+```
+`.env.local` privalomi tik du kintamieji (be jų svetainė net nepasileidžia):
+```
+NEXT_PUBLIC_SANITY_PROJECT_ID=xxxx
+NEXT_PUBLIC_SANITY_DATASET=production
+```
+Toliau:
+```bash
+npm run dev                     # http://localhost:3000 (auto-perkrovimas)
+npm run lint && npm run typecheck   # tos pačios patikros, kaip GitHub Actions
+npm run build && npm start      # produkcinio režimo patikra
+npx sanity dev                  # Sanity Studio lokaliai: http://localhost:3333
+```
+- Formos laiškų testui papildomai reikia `RESEND_API_KEY`, `QUOTE_TO_EMAIL`,
+  `QUOTE_FROM_EMAIL`. Turnstile / GA / Meta — nebūtini.
+- Docker lokaliai: `docker compose up web` (tik svetainė, be Caddy). **Nepaleisk**
+  pilno `docker compose up` — Caddy užima 80/443 portus tikram domenui.
+- Be Sanity turinio puslapis atsidaro, bet katalogas, galerija ir atsiliepimai tušti
+  (žr. ETAPAS 2 — seed).
 
 ---
 
@@ -50,7 +82,10 @@ npm install
 npx sanity login
 npx sanity init --env      # „Create new project" -> vardas Valdopalapines, dataset production (public)
 ```
-   `--env` įrašys `NEXT_PUBLIC_SANITY_PROJECT_ID` ir `_DATASET` į `.env`.
+   Projekte jau yra `sanity.config.ts` ir schemos — jei `init` klausia, ar
+   perrašyti konfigūraciją / sukurti naują studio, **atsakyk „ne"** (reikia tik
+   projekto ir `.env`). `--env` įrašys `NEXT_PUBLIC_SANITY_PROJECT_ID` ir
+   `_DATASET` į `.env`.
 3. Studio kaimynui paskelbk:
 ```bash
 npx sanity deploy          # pasirink adresą -> https://valdopalapines.sanity.studio
@@ -59,7 +94,18 @@ npx sanity deploy          # pasirink adresą -> https://valdopalapines.sanity.s
    - **Viewer** → `SANITY_API_READ_TOKEN` (nebūtina viešam datasetui)
    - **Editor** → `SANITY_API_WRITE_TOKEN` (reikia TIK seed'ui, ETAPAS 2)
 5. `SANITY_REVALIDATE_SECRET` — sugalvok ilgą atsitiktinį tekstą (jį naudosi ir
-   Sanity webhook'e: Manage → API → Webhooks → URL `https://valdopalapines.lt/api/revalidate`).
+   Sanity webhook'e). Webhook'ą (Manage → API → Webhooks → Create) nustatyk **tiksliai**:
+
+   | Laukas | Reikšmė |
+   |---|---|
+   | URL | `https://valdopalapines.lt/api/revalidate` |
+   | Dataset | `production` |
+   | Trigger | Create, Update, Delete |
+   | Filter | `_type in ["service","post","galleryImage","testimonial","siteSettings"]` |
+   | Projection | `{ "_type": _type }` ← **būtina**, kitaip svetainė atsako 400 |
+   | Secret | tas pats kaip `SANITY_REVALIDATE_SECRET` |
+
+   Be webhook'o pakeitimai vis tiek atsinaujina per ~1 min (automatinis ISR).
 
 ## 1.4. Cloudflare Turnstile — formų apsauga (nebūtina, rekomenduojama)
 1. https://dash.cloudflare.com → **Turnstile → Add site** → domenas
@@ -122,11 +168,20 @@ sudo usermod -aG docker $USER      # po šito perlogink SSH sesiją
 Caddy diegti atskirai nereikia — jis pakyla konteineriu ir tvarko SSL.
 
 ## 3.2. Kodo klonavimas
+Repozitorija privati, todėl serveris turi turėti savo „deploy key" (tik skaitymui):
 ```bash
-cd /opt
-sudo git clone https://github.com/TAVO-VARDAS/valdopalapines.git
-sudo chown -R $USER:$USER valdopalapines && cd valdopalapines
+ssh-keygen -t ed25519 -f ~/.ssh/valdopalapines_deploy -N ""
+cat ~/.ssh/valdopalapines_deploy.pub        # nukopijuok išvestį
 ```
+GitHub → repo → **Settings → Deploy keys → Add deploy key** → įklijuok viešą
+raktą (palik *Allow write access* **išjungtą**). Tada serveryje:
+```bash
+printf 'Host github.com\n  IdentityFile ~/.ssh/valdopalapines_deploy\n  IdentitiesOnly yes\n' >> ~/.ssh/config
+sudo mkdir -p /opt/valdopalapines && sudo chown $USER:$USER /opt/valdopalapines
+git clone git@github.com:TAVO-VARDAS/valdopalapines.git /opt/valdopalapines
+cd /opt/valdopalapines
+```
+> Be šio žingsnio GitHub Actions deploy nepavyks ties `git pull`.
 
 ## 3.3. Serverio `.env` — pilna kintamųjų lentelė
 ```bash
@@ -185,70 +240,14 @@ matomas svetainėje.
 
 ---
 
-# ETAPAS 4 — Marketingas, Ads ir SEO
-
-## 4.1. Konversijų sekimas (jau kode — belieka įjungti)
-Kodas paruoštas 2026 m. reikalavimams:
-- **Google Consent Mode v2** — numatytas „denied", atnaujinamas vartotojui
-  sutikus (`components/analytics/consent-mode.tsx`, `lib/consent.ts`). ES privaloma.
-- **`generate_lead` su verte** — `lib/analytics.ts` siunčia `value` + `currency`
-  (be jų GA4 nuo 2026-04 įvykio neskaito). Vertė keičiama per `NEXT_PUBLIC_LEAD_VALUE`.
-- **Meta CAPI (server-side `Lead`)** — `/api/quote` dubliuoja Pixel įvykį iš
-  serverio su bendru `event_id` (dedup). Įsijungia, kai nustatytas `META_CAPI_TOKEN`.
-
-**Įjungimas:** užpildyk `.env` (GA/Pixel/CAPI ID), redeploy. Patikrink Meta Events
-Manager → **Test Events** (turi matytis „Lead" iš serverio ir naršyklės, sujungti).
-
-## 4.2. GA4 ↔ Google Ads
-1. GA4 → Admin → **Product Links → Google Ads Links → Link** (įjunk
-   „personalized advertising" — kad remarketingo auditorijos plauktų).
-2. Google Ads → Tools → **Conversions → New → Import → GA4 → pažymėk
-   `generate_lead`**. Palauk 24–48 val.
-3. (Rekomenduojama) įjunk **Enhanced Conversions for Leads** (+10–15 % tikslumo).
-
-## 4.3. Google Ads — 3 kampanijos
-| Kampanija | Skelbimų grupės |
-|---|---|
-| **Palapinių nuoma** | palapinių nuoma · vestuvių palapinės · dvišlaitės |
-| **Paviljonų nuoma** | paviljonų nuoma · pagoda · šventės palapinė |
-| **Baldų nuoma šventėms** | stalų nuoma · kėdžių nuoma · banketo baldai |
-
-- **Exact:** `[palapinių nuoma]`, `[paviljonų nuoma]`, `[baldų nuoma šventėms]`,
-  `[vestuvių palapinės nuoma]`.
-- **Phrase:** `"palapinių nuoma kaune"`, `"paviljono nuoma"`, `"kėdžių nuoma renginiui"`.
-- **Neigiami raktažodžiai (paskyros lygiu):**
-```
-naudotos, naudota, skelbiu, skelbimai, parduoda, parduodu, pardavimas,
-pirkti, pirkimas, gamyba, gaminame, gamintojas, siuvimas, nemokamai, nemokama,
-darbo, karjera, atlyginimas, instrukcija, kaip pasidaryti, DIY, aliexpress, olx
-```
-- **Bidding:** startuok **Maximize Conversions**; surinkus ~15–30 konversijų/mėn.
-  → **tCPA**.
-- **Plėtiniai:** Sitelinks (Palapinės/Baldai/Galerija/Kontaktai), Callouts
-  (Montavimas įskaičiuotas · Visa LT), Structured snippets (Paslaugos), **Call
-  extension** (telefonas), **Price** (nuo X €), **Location** (susiek su GBP).
-
-## 4.4. Local SEO + Google Search Console
-- **GSC:** https://search.google.com/search-console → pridėk **Domain property**
-  → patvirtink DNS TXT → **Sitemaps** → pateik `https://valdopalapines.lt/sitemap.xml`
-  → **URL Inspection** → „Request indexing" svarbiausiems puslapiams.
-- **Google Business Profile:** kategorija „Palapinių nuomos paslauga", aptarnaujama
-  teritorija Kaunas + Kauno apskritis (aprašyme — visa Lietuva), daug nuotraukų,
-  vieningas telefonas (NAP). **Atsiliepimų nuoroda:** business.google.com →
-  *Read reviews* → *Get more reviews* → dalinimosi ikona → nukopijuok `g.page/r/…`
-  nuorodą + QR (QR gaunamas tik kompiuteryje). Siųsk po kiekvieno renginio.
-- **Regioninis on-page SEO:** sukurk miestų puslapius (`palapinių nuoma Kaune`,
-  `paviljonų nuoma Vilniuje`) su unikaliu tekstu, H1/Title/Meta su miesto raktažodžiu.
-
-## 4.5. Meta Ads
-- **Remarketingas:** auditorija = lankytojai per 30–60 d., kurie NEužpildė formos
-  (įtrauk PageView, išbrauk Lead).
-- **Kūrybiniai:** realios šventės (4:5 feed, 9:16 Stories/Reels), video „prieš/po",
-  atsiliepimai, UGC.
+> Marketingas, Google/Meta Ads ir SEO perkelta į atskirą failą: `MARKETING.md`.
+> Kodas jau paruoštas konversijų sekimui — tereikia užpildyti GA/Pixel/CAPI
+> kintamuosius (3.3 lentelė) ir **perbuildinti** (`docker compose up -d --build`),
+> nes `NEXT_PUBLIC_*` reikšmės įkepamos build metu.
 
 ---
 
-# ETAPAS 5 — Kaimyno perdavimas (5 žingsniai)
+# ETAPAS 4 — Kaimyno perdavimas (5 žingsniai)
 1. **Pakviesk į Sanity** (Manage → Members → Invite → Editor).
 2. **Perduok `KAIMYNO-VALDYMO-GIDAS.md`** ir kartu pridėkite 1 palapinę → Publish.
 3. **Nustatyk `QUOTE_TO_EMAIL`** į kaimyno dėžutę → atlik **testinę užklausą**.
@@ -260,11 +259,21 @@ darbo, karjera, atlyginimas, instrukcija, kaip pasidaryti, DIY, aliexpress, olx
 # Mėnesio profilaktika (Lukui)
 - **Serveris:** `sudo apt update && sudo apt upgrade -y`; `docker image prune -f`;
   `df -h`; `docker compose ps` + `logs --tail=100`.
-- **Backupai:** savaitinis `npx sanity dataset export production` (cron) + Hetzner
-  snapshot'ai. Kartą per mėn. patikrink, kad kopija daroma.
+- **Backupai:** savaitinis Sanity eksportas + Hetzner snapshot'ai. Pvz. cron
+  (`crontab -e`, sekmadieniais 03:00; reikia `npx sanity login` arba
+  `SANITY_AUTH_TOKEN` su Viewer teisėmis):
+  ```
+  0 3 * * 0  cd /opt/valdopalapines && npx sanity dataset export production /opt/backups/sanity-$(date +\%F).tar.gz
+  ```
+  Kartą per mėn. patikrink, kad failai atsiranda (`ls -la /opt/backups`).
 - **Uptime:** UptimeRobot pinga `/`.
-- **Analitika:** GSC klaidos, GA4 `generate_lead` kiekis, Ads/Meta konversijų statusas.
-- **Priklausomybės:** kas kelis mėn. `npm outdated` / Dependabot.
+- **Priklausomybės:** Dependabot (`.github/dependabot.yml`) kas savaitę atidaro PR.
+  Peržiūrėk ir sujunk; saugumo PR (ypač `next`) — nedelsiant. CI žingsnis
+  `npm audit` rodo žinomas spragas.
+- **Rollback:** jei po deploy kažkas sulūžo — serveryje
+  `git log --oneline -5`, `git checkout <geras-commit>`, `docker compose up -d --build`
+  (vėliau `git checkout main` ir sutaisyk).
+- **Analitika / Ads:** žr. `MARKETING.md`.
 
 ---
 

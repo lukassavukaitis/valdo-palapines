@@ -14,7 +14,8 @@ rašyti straipsnius ir atsakinėti į klientų užklausas.
 2. Kaip pridėti naują palapinę ar baldą
 3. Kaip parašyti straipsnį (blogą „Google" srautui)
 4. Ką daryti gavus užklausą ir kaip keisti kainas
-5. Naudingi patarimai
+5. Kaip pridėti nuotrauką į galeriją ir pakeisti kontaktus
+6. Naudingi patarimai
 
 ---
 
@@ -26,7 +27,8 @@ Valdymo skydas — tai svetainės „variklinė", kurioje sudedate, ką svetain�
 
 1. Atsidarykite adresą naršyklėje (geriausia kompiuteryje).
 2. Prisijunkite tuo el. paštu, į kurį gavote kvietimą (paspauskite nuorodą
-   laiške arba junkitės per „Google" / „Google" mygtuką).
+   laiške arba pasirinkite prisijungimą per „Google", jei kvietimas gautas
+   „Gmail" adresu).
 3. Įėję kairėje pusėje matysite sąrašą: **Paslauga / Inventorius**,
    **Straipsnis**, **Galerijos nuotrauka**, **Atsiliepimas**,
    **Svetainės nustatymai**.
@@ -52,10 +54,12 @@ Valdymo skydas — tai svetainės „variklinė", kurioje sudedate, ką svetain�
    | **Specifikacijos** | Po vieną eilutę: „Dydis 10×20 m", „Baltos sienelės"… (mygtukas „Add item") |
    | **Aprašymas** | 2–4 sakiniai apie prekę |
    | **Kaina nuo** | Skaičius eurais (nebūtina — galima palikti tuščią) |
+   | **Rikiavimo eiliškumas** | Mažesnis skaičius rodomas aukščiau (0, 1, 2…). Nebūtina — paliekate 0, rodoma pagal abėcėlę |
 
 4. Viršuje paspauskite **„Publish"** (Paskelbti).
 
-✅ Prekė iškart atsiras svetainės skiltyje „Inventorius".
+✅ Prekė atsiras svetainės skiltyje „Inventorius" per maždaug minutę (jei nepasirodo —
+perkraukite puslapį su Ctrl+F5).
 
 ### 📸 Kokias nuotraukas kelti
 - **Horizontalios** (gulsčios) nuotraukos atrodo geriausiai.
@@ -112,6 +116,9 @@ inventoriumi ir kliento kontaktais.
 - Jei laiške paspausite **„Atsakyti" (Reply)** — atsakymas keliaus **tiesiai
   klientui** (ne į tuščią dėžutę). Taip patogu iškart pateikti pasiūlymą.
 - Rekomendacija: susisiekite kuo greičiau (idealu — tą pačią dieną).
+- **Laiško nėra?** Pirmiausia patikrinkite „Šlamšto" (Spam) aplanką. Jei po
+  bandomosios užklausos laiško vis tiek nėra — parašykite Lukui, nes klaida gali būti
+  nustatymuose.
 
 ### 💶 Kaip pakeisti paslaugos kainą ar aprašymą
 1. Valdymo skyde → **„Paslauga / Inventorius"**.
@@ -119,7 +126,7 @@ inventoriumi ir kliento kontaktais.
 3. Pakeiskite **„Kaina nuo"** arba **„Aprašymą"**.
 4. **„Publish"**.
 
-Pakeitimas svetainėje atsinaujina per kelias sekundes.
+Pakeitimas svetainėje atsinaujina per maždaug minutę.
 
 > 💡 Jei kainų viešai rodyti nenorite (dažnai tai skatina klientą teirautis),
 > palikite laukelį „Kaina nuo" tuščią — kaina svetainėje nebus rodoma.
@@ -130,7 +137,29 @@ Kairėje → **„Atsiliepimas"** → **„+"** → įrašykite autorių, rengin
 
 ---
 
-## 5. Naudingi patarimai
+## 5. Kaip pridėti nuotrauką į galeriją ir pakeisti kontaktus
+
+### 🖼️ Galerijos nuotrauka
+1. Kairėje → **„Galerijos nuotrauka"** → viršuje **„+"**.
+2. **Nuotrauka** — įkelkite failą ir parašykite **Alt tekstą** (trumpai, kas matosi).
+3. **Kategorija** — Vestuvės / Įmonių šventės / Gimtadieniai (pagal ją galerijoje
+   veikia filtras).
+4. **Aprašymas** — trumpas parašas po nuotrauka (nebūtina).
+5. **Rodyti pagrindinėje** — pažymėkite, jei nuotrauka turi būti rodoma pirmiausia.
+6. **„Publish"**.
+
+### 📞 Telefonas, el. paštas, Facebook / Instagram
+1. Kairėje → **„Svetainės nustatymai"** (čia yra tik vienas įrašas — atidarykite jį).
+2. Pakeiskite **Telefoną**, **El. paštą**, **Facebook / Instagram nuorodas** arba
+   **Rekvizitus** (rodomi svetainės apačioje).
+3. **„Publish"**.
+
+> ℹ️ Šie kontaktai rodomi svetainės apačioje. Jei keičiasi ir pagrindinis telefonas
+> „Google" paieškos kortelėje, parašykite Lukui — tai keičiama kode.
+
+---
+
+## 6. Naudingi patarimai
 
 - ✅ **Visada spauskite „Publish".** Kol nepaspausta — pakeitimai išsaugoti kaip
   juodraštis ir svetainėje dar nematomi.
