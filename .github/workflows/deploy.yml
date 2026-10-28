@@ -14,9 +14,9 @@ jobs:
   quality:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: 22
           cache: npm
@@ -24,11 +24,8 @@ jobs:
       - name: Įdiegti priklausomybes
         run: npm ci
 
-      # TODO: pakeisti į blokuojantį (pašalinti continue-on-error) kai Next bus
-      # atnaujintas į 15.5.x ir Sanity Studio priklausomybės perkeltos į devDependencies
       - name: Saugumo patikra (produkcinės priklausomybės)
         run: npm audit --omit=dev --audit-level=high
-        continue-on-error: true
 
       - name: ESLint
         run: npm run lint
@@ -49,7 +46,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: SSH deploy į serverį
-        uses: appleboy/ssh-action@v1.2.0
+        uses: appleboy/ssh-action@v1.2.5
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}

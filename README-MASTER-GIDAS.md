@@ -157,7 +157,7 @@ cd valdo-palapines
 ```bash
 npm ci
 ```
-Užtrunka 1–3 min. Gali parašyti „warnings" ar „vulnerabilities" — tai normalu, ignoruok.
+Užtrunka 1–3 min. Gali parašyti keletą „warn" (pvz. apie `eslint` ar `uuid`) ir „vulnerabilities" — tai Sanity Studio įrankiai, svetainės veikimui įtakos neturi; ignoruok.
 ✅ **Patikra:** komanda baigiasi be raudono `npm error`, atsirado aplankas `node_modules`.
 
 ### 1.5. Susikurk `.env` failą (💻 PC)
