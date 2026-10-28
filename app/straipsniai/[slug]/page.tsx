@@ -72,7 +72,7 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
 
       {post.coverUrl && (
         <div
-          className="mx-auto mt-8 aspect-[16/9] max-w-3xl rounded-xl2 bg-sand bg-cover bg-center"
+          className="mx-auto mt-8 aspect-video max-w-3xl rounded-xl2 bg-sand bg-cover bg-center"
           style={{ backgroundImage: `url('${post.coverUrl}?w=1600&auto=format')` }}
           role="img"
           aria-label={post.coverAlt || post.title}

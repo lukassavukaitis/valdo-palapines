@@ -38,7 +38,7 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
 
       <div className="grid gap-10 lg:grid-cols-2">
         <div
-          className="aspect-[4/3] rounded-xl2 bg-sand bg-cover bg-center"
+          className="aspect-4/3 rounded-xl2 bg-sand bg-cover bg-center"
           style={s.imageUrl ? { backgroundImage: `url('${s.imageUrl}?w=1000&auto=format')` } : undefined}
           role="img"
           aria-label={s.imageAlt || s.name}

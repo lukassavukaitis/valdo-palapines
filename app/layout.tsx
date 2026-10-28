@@ -12,13 +12,13 @@ import { ConsentModeInit } from "@/components/analytics/consent-mode";
 const display = Cormorant_Garamond({
   subsets: ["latin", "latin-ext"], // latin-ext -> lietuviški ą č ę ...
   weight: ["500", "600", "700"],
-  variable: "--font-display",
+  variable: "--font-cormorant",
   display: "swap",
 });
 
 const sans = Inter({
   subsets: ["latin", "latin-ext"],
-  variable: "--font-sans",
+  variable: "--font-inter",
   display: "swap",
 });
 

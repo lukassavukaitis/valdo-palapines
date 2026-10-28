@@ -36,7 +36,7 @@ export function CookieBanner() {
   if (!show) return null;
 
   return (
-    <div className="fixed inset-x-0 bottom-0 z-[70] p-3 sm:p-4">
+    <div className="fixed inset-x-0 bottom-0 z-70 p-3 sm:p-4">
       <div className="mx-auto max-w-3xl rounded-xl2 border border-ink/10 bg-ivory p-5 shadow-xl sm:p-6">
         <div className="flex items-start gap-3">
           <Cookie className="mt-0.5 shrink-0 text-gold" size={22} />

@@ -58,7 +58,7 @@ export function Gallery({ images }: { images: GalleryImage[] }) {
       </div>
 
       {/* Mozaikinis tinklas */}
-      <div className="columns-2 gap-4 sm:columns-3 lg:columns-4 [&>*]:mb-4">
+      <div className="columns-2 gap-4 sm:columns-3 lg:columns-4 *:mb-4">
         {filtered.map((img, idx) => (
           <button
             key={img._id}
@@ -84,7 +84,7 @@ export function Gallery({ images }: { images: GalleryImage[] }) {
       {/* Lightbox */}
       {lightbox !== null && filtered[lightbox] && (
         <div
-          className="fixed inset-0 z-[60] flex items-center justify-center bg-ink/90 p-4"
+          className="fixed inset-0 z-60 flex items-center justify-center bg-ink/90 p-4"
           onClick={() => setLightbox(null)}
           role="dialog"
           aria-modal="true"

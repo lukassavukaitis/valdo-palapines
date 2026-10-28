@@ -1,15 +1,68 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
 
-/* Design tokens — pasiekiami ir per CSS var, ir per Tailwind (žr. tailwind.config.ts) */
+/* Design tokens — pasiekiami ir per CSS var, ir per Tailwind (@theme) */
+@theme {
+  --color-ivory: rgb(var(--ivory));
+  --color-sand: rgb(var(--sand));
+  --color-ink: rgb(var(--ink));
+  --color-forest: rgb(var(--forest));
+  --color-gold: rgb(var(--gold));
+  --color-stone: rgb(var(--stone));
+
+  --font-display: var(--font-cormorant), Georgia, serif;
+  --font-sans: var(--font-inter), system-ui, sans-serif;
+
+  --container-content: 1200px;
+
+  --radius-xl2: 1.25rem;
+}
+
+/*
+  The default border color has changed to `currentcolor` in Tailwind CSS v4,
+  so we've added these compatibility styles to make sure everything still
+  looks the same as it did with Tailwind CSS v3.
+
+  If we ever want to remove these styles, we need to add an explicit border
+  color utility to any element that depends on these defaults.
+*/
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentcolor);
+  }
+}
+
+@utility glass {
+  /* Glassmorphism juosta navigacijai */
+  @apply bg-ivory/70 backdrop-blur-md backdrop-saturate-150
+           border-b border-ink/5;
+}
+
+@utility btn-primary {
+  /* Pirminis CTA */
+  @apply inline-flex items-center justify-center gap-2 rounded-full
+           bg-forest px-6 py-3 text-sm font-medium text-ivory
+           transition-colors hover:bg-forest/90
+           focus-visible:outline-solid focus-visible:outline-2
+           focus-visible:outline-offset-2 focus-visible:outline-gold;
+}
+
+@utility btn-ghost {
+  @apply inline-flex items-center justify-center gap-2 rounded-full
+           border border-ink/15 px-6 py-3 text-sm font-medium text-ink
+           transition-colors hover:border-forest hover:text-forest;
+}
+
 :root {
-  --ivory: 251 249 244;   /* #FBF9F4 */
-  --sand: 239 233 221;    /* #EFE9DD */
-  --ink: 26 27 24;        /* #1A1B18 */
-  --forest: 47 74 60;     /* #2F4A3C */
-  --gold: 176 141 76;     /* #B08D4C */
-  --stone: 107 110 102;   /* #6B6E66 */
+  --ivory: 251 249 244; /* #FBF9F4 */
+  --sand: 239 233 221; /* #EFE9DD */
+  --ink: 26 27 24; /* #1A1B18 */
+  --forest: 47 74 60; /* #2F4A3C */
+  --gold: 176 141 76; /* #B08D4C */
+  --stone: 107 110 102; /* #6B6E66 */
 }
 
 @layer base {
@@ -19,27 +72,6 @@
   }
   h1, h2, h3 {
     @apply font-display tracking-tight;
-  }
-}
-
-@layer components {
-  /* Glassmorphism juosta navigacijai */
-  .glass {
-    @apply bg-ivory/70 backdrop-blur-md backdrop-saturate-150
-           border-b border-ink/5;
-  }
-  /* Pirminis CTA */
-  .btn-primary {
-    @apply inline-flex items-center justify-center gap-2 rounded-full
-           bg-forest px-6 py-3 text-sm font-medium text-ivory
-           transition-colors hover:bg-forest/90
-           focus-visible:outline focus-visible:outline-2
-           focus-visible:outline-offset-2 focus-visible:outline-gold;
-  }
-  .btn-ghost {
-    @apply inline-flex items-center justify-center gap-2 rounded-full
-           border border-ink/15 px-6 py-3 text-sm font-medium text-ink
-           transition-colors hover:border-forest hover:text-forest;
   }
 }
 
