@@ -30,7 +30,7 @@ Eik **iš eilės**, etapų nešokinėk. Kiekvieno etapo gale yra **„✅ Patikr
 |---|---|---|
 | Domenas `valdopalapines.lt` ir prieiga prie jo **DNS valdymo** | kad svetainė turėtų adresą ir veiktų el. paštas | jau turima |
 | Banko kortelė | Hetzner serveriui apmokėti (kitos paskyros nemokamos) | serveris ~4–8 €/mėn. |
-| Windows kompiuteris su teisėmis diegti programas | darbui | — |
+| Linux kompiuteris **arba** Windows su **WSL** (Ubuntu) ir teisėmis diegti programas | darbui (projektas kuriamas tik Linux aplinkoje) | — |
 | Slaptažodžių tvarkyklė (Bitwarden, 1Password ar bent užrašų failas) | čia atsiras daug slaptų reikšmių | nemokama |
 
 ### 0.3. Minimalus kelias
@@ -41,7 +41,8 @@ ir svetainė puikiai veikia be jų.
 ### 0.4. Žodynėlis (perskaityk vieną kartą)
 | Terminas | Paprastai tariant |
 |---|---|
-| **Terminalas / PowerShell** | juodas langas, kuriame rašomos komandos. Windows: *Start* → rašyk `PowerShell` → Enter. |
+| **Terminalas** | juodas langas, kuriame rašomos komandos. Linux: programa *Terminal*. Windows: *Start* → rašyk `Ubuntu` → Enter (tai WSL langas, **ne** PowerShell). |
+| **WSL** | „Windows Subsystem for Linux" — tikras Ubuntu Linux, veikiantis Windows viduje. Visas darbas su projektu vyksta jame. |
 | **Komanda** | eilutė, kurią įrašai terminale ir paspaudi Enter. Šiame gide jos rodomos `tokiuose` blokuose. |
 | **Git** | programa, kuri saugo kodo istoriją ir leidžia jį siųsti į internetą. |
 | **GitHub** | svetainė, kurioje saugomas projekto kodas (kaip „Dropbox" kodui). |
@@ -66,12 +67,12 @@ ir svetainė puikiai veikia be jų.
 
 ### 0.5. Kaip skaityti komandų blokus
 Prie kiekvieno bloko nurodyta, **kur** jį vykdyti:
-- 💻 **PC** — Tavo Windows kompiuteryje, PowerShell lange;
+- 💻 **PC** — Tavo kompiuteryje, Linux terminale (Windows atveju — **Ubuntu (WSL) lange**, ne PowerShell);
 - 🖥️ **Serveris** — prisijungus prie Hetzner serverio per SSH (žr. 4 etapą);
 - 🌐 **Naršyklė** — spaudinėji svetainėse.
 
 Tekstą `<TAVO-REIKŠMĖ>` reikia pakeisti savo reikšme (kampinių skliaustų nepalik).
-Komandas galima kopijuoti; PowerShell lange įklijuoti galima dešiniu pelės klavišu.
+Komandas galima kopijuoti; terminale įklijuoti — `Ctrl+Shift+V` arba dešiniu pelės klavišu.
 
 ### 0.6. „Užrašų lapas"
 Gide rinksi reikšmes, kurios reikės vėliau. Susikurk slaptą failą/įrašą su tokiu sąrašu ir pildyk einant:
@@ -89,62 +90,81 @@ Gide rinksi reikšmes, kurios reikės vėliau. Susikurk slaptą failą/įrašą 
 
 ## 1. Kompiuterio paruošimas
 
-### 1.1. Įdiek programas (🌐 + 💻)
-1. **Git for Windows** — https://git-scm.com/download/win → paleisk diegimo programą, visur spausk *Next* (numatytieji nustatymai tinka).
-2. **Node.js 22** — https://nodejs.org → *Download* → pasirink **v22.x (LTS)**. Jei pagrindinis mygtukas rodo kitą versiją, spausk *Previous releases* ir rask 22.x. Diegimo metu viską palik numatyta.
-3. (Rekomenduojama) **Visual Studio Code** — https://code.visualstudio.com — patogus failų redagavimui.
-4. **Užsidaryk ir iš naujo atidaryk PowerShell**, tada patikrink:
+> ⚠️ **Projektas kuriamas tik Linux aplinkoje** (Linux kompiuteris arba WSL Windows'e) — taip pat, kaip
+> serveryje ir GitHub automatikoje. **Nedirbk tiesiai Windows PowerShell'e**: ten `npm ci` ir `npx sanity deploy`
+> lūžta (trūksta Windows versijų kai kurių bibliotekų).
+
+### 1.1. Windows: įsidiek WSL (🌐 + 💻) — Linux naudotojai šį žingsnį praleidžia
+1. *Start* → rašyk `PowerShell` → dešiniu pelės klavišu → **Run as administrator**. Paleisk (tai vienintelė PowerShell komanda šiame gide):
 ```powershell
+wsl --install -d Ubuntu-24.04
+```
+2. **Perkrauk kompiuterį.** Po perkrovimo atsidarys Ubuntu langas (jei ne — *Start* → `Ubuntu`) ir paprašys susikurti
+   Linux naudotojo vardą ir slaptažodį (slaptažodis rašant nesimato — tai normalu). **Užsirašyk jį** — jo prireiks su `sudo`.
+3. (Rekomenduojama) **Visual Studio Code** — https://code.visualstudio.com + plėtinys **WSL** (VS Code → *Extensions* → `WSL`).
+   Tada Ubuntu lange projekto aplanke parašius `code .`, VS Code atsidaro tiesiai WSL viduje.
+
+Nuo šiol **visos** 💻 komandos vykdomos **Ubuntu lange**.
+
+### 1.2. Įdiek programas (💻 PC)
+*Bazinės programos:*
+```bash
+sudo apt update && sudo apt install -y git curl unzip gh
+```
+*Node.js 22* — diegiam per **fnm**, kuris projekto aplanke pats įjungia teisingą versiją (pagal `.node-version` failą).
+Svarbu būtent **22**: su naujesne Node versija `npm ci` baigiasi klaida.
+```bash
+curl -fsSL https://fnm.vercel.app/install | bash -s -- --skip-shell
+echo 'export PATH="$HOME/.local/share/fnm:$PATH"' >> ~/.bashrc
+echo 'eval "$(fnm env --use-on-cd --shell bash)"' >> ~/.bashrc
+source ~/.bashrc
+fnm install 22
+fnm default 22
+```
+Patikrink:
+```bash
 git --version
 node -v
 npm -v
 ```
-✅ **Patikra:** `git` rodo versiją, `node -v` rodo `v22.…`, `npm -v` rodo skaičių.
+✅ **Patikra:** `git` rodo versiją, `node -v` rodo `v22.…`, `npm -v` rodo `10.…`.
 
-> 💡 **Jei kompiuteryje jau yra kita Node versija** (pvz. 24) ir nenori jos trinti — naudok **fnm**, kuris
-> laiko kelias versijas šalia ir projekto aplanke pats įjungia 22 (pagal `.node-version` failą):
-> ```powershell
-> winget install Schniz.fnm
-> fnm install 22
-> fnm default system
-> if (!(Test-Path $PROFILE)) { New-Item -Force $PROFILE }
-> Add-Content $PROFILE 'fnm env --use-on-cd --shell powershell | Out-String | Invoke-Expression'
-> ```
-> Užsidaryk ir iš naujo atidaryk PowerShell, nueik į projekto aplanką — `node -v` turi rodyti `v22.…`.
-
-> ⚠️ **Jei `npm`/`npx` rašo „running scripts is disabled on this system"** — vieną kartą paleisk:
-> `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned` ir patvirtink `Y`.
-
-### 1.2. Pasiimk projekto kodą (💻 PC)
+### 1.3. Pasiimk projekto kodą (💻 PC)
 Repozitorija GitHub'e jau sukurta: `https://github.com/lukassavukaitis/valdo-palapines`.
 
-> 💡 **Nesaugok projekto OneDrive aplanke** — OneDrive sinchronizuoja tūkstančius `node_modules` failų ir viską lėtina.
-> Naudok pvz. `C:\dev`.
+Pirmiausia prisijunk prie GitHub (vieną kartą):
+```bash
+gh auth login
+gh auth setup-git
+```
+Atsakyk: *GitHub.com* → *HTTPS* → *Login with a web browser*. Terminalas parodys kodą ir nuorodą — atidaryk ją naršyklėje ir įvesk kodą.
 
-```powershell
-mkdir C:\dev
-cd C:\dev
+> 💡 **WSL: laikyk projektą Linux namų aplanke (`~/dev`)**, ne Windows diske (`/mnt/c/...`) ar OneDrive —
+> ten viskas veikia kelis kartus lėčiau ir kartais lūžta.
+
+```bash
+mkdir -p ~/dev
+cd ~/dev
 git clone https://github.com/lukassavukaitis/valdo-palapines.git
 cd valdo-palapines
 ```
-(Pirmą kartą atsidarys naršyklės langas prisijungti prie GitHub — prisijunk.)
 
 > Jei repozitorija **privati** ir `git clone` rašo „not found" — tau trūksta prieigos; prisijunk tuo GitHub paskyra, kuri yra repo savininkė.
 
-✅ **Patikra:** `dir` (arba `ls`) parodo `package.json`, `Dockerfile`, `app` ir kt.
+✅ **Patikra:** `ls` parodo `package.json`, `Dockerfile`, `app` ir kt.; `node -v` šiame aplanke rodo `v22.…`.
 
-### 1.3. Įdiek bibliotekas (💻 PC)
-```powershell
+### 1.4. Įdiek bibliotekas (💻 PC)
+```bash
 npm ci
 ```
 Užtrunka 1–3 min. Gali parašyti „warnings" ar „vulnerabilities" — tai normalu, ignoruok.
 ✅ **Patikra:** komanda baigiasi be raudono `npm error`, atsirado aplankas `node_modules`.
 
-### 1.4. Susikurk `.env` failą (💻 PC)
-```powershell
-Copy-Item .env.example .env
+### 1.5. Susikurk `.env` failą (💻 PC)
+```bash
+cp .env.example .env
 ```
-Failas `.env` dabar yra, bet su pavyzdinėmis reikšmėmis. Atidaryk jį (`code .env` arba Notepad).
+Failas `.env` dabar yra, bet su pavyzdinėmis reikšmėmis. Atidaryk jį (`code .env` arba `nano .env`).
 **Taisyklės redaguojant `.env`:**
 - Formatas: `VARDAS=reikšmė` — **be tarpų aplink `=`**, be kabučių.
 - Eilutė, prasidedanti `#`, yra **išjungta**. Norint įjungti — ištrink `#` ir įrašyk tikrą reikšmę.
@@ -185,13 +205,13 @@ SANITY_STUDIO_PROJECT_ID=a1b2c3d4
 4. `.env` faile **ištrink `#`** prieš eilutę `SANITY_API_WRITE_TOKEN=` ir įklijuok tokeną.
 
 **D. Prisijunk prie Sanity iš terminalo (💻 PC)**
-```powershell
+```bash
 npx sanity login
 ```
-Pasirink prisijungimo būdą (Google/GitHub), naršyklėje patvirtink.
+Pasirink prisijungimo būdą (Google/GitHub), naršyklėje patvirtink. (WSL: jei naršyklė neatsidaro pati — nukopijuok terminale parodytą nuorodą į naršyklę.)
 
 **E. Paskelbk Studio kaimynui (💻 PC)**
-```powershell
+```bash
 npx sanity deploy
 ```
 Paklaus **Studio hostname** → įrašyk `valdopalapines` (gausi `https://valdopalapines.sanity.studio`, šis adresas minimas `KAIMYNO-VALDYMO-GIDAS.md`). Jei vardas užimtas — pasirink kitą ir atnaujink kaimyno gidą.
@@ -239,7 +259,7 @@ QUOTE_FROM_EMAIL=uzklausos@valdopalapines.lt
 
 ### 3.1. Įkelk pradinį turinį (seed) (💻 PC)
 Įsitikink, kad `.env` jau turi `NEXT_PUBLIC_SANITY_PROJECT_ID` ir `SANITY_API_WRITE_TOKEN` (be `#`).
-```powershell
+```bash
 npm run seed
 ```
 Įkelia: Dvišlaitė, Pagoda, Flex, Karūna palapines + banketo stalus/kėdes + apšvietimą + tekstilę + svetainės kontaktus.
@@ -247,7 +267,7 @@ Saugu paleisti kelis kartus (dublikatų nesukuria). **Nuotraukas** vėliau pride
 ✅ **Patikra:** terminale nėra `❌`; `https://valdopalapines.sanity.studio` (perkrauk F5) rodo įrašus skiltyje „Paslaugos".
 
 ### 3.2. Paleisk svetainę lokaliai (💻 PC)
-```powershell
+```bash
 npm run dev
 ```
 Palik langą atvirą. Naršyklėje atidaryk http://localhost:3000.
@@ -260,7 +280,7 @@ Naršyklėje http://localhost:3000/#uzklausa → užpildyk ir išsiųsk.
 ✅ **Patikra:** laiškas atėjo į `QUOTE_TO_EMAIL` dėžutę (patikrink ir Šlamštą/Spam). Neatėjo? Žr. **B priedą**.
 
 ### 3.4. (Pasirinktinai) kodo patikros kaip GitHub'e
-```powershell
+```bash
 npm run lint
 npm run typecheck
 npm run build
@@ -273,13 +293,13 @@ Visos trys turi baigtis be klaidų – tas pats vyks GitHub Actions prieš kiekv
 
 ### 4.1. Sukurk serverį
 **A. SSH raktas savo kompiuteryje (💻 PC)** — jei dar neturi:
-```powershell
+```bash
 ssh-keygen -t ed25519
 ```
 Spausk Enter (3 kartus: numatytas failas, be slaptafrazės arba su ja – kaip nori).
 Parodyk **viešą** raktą (jį galima kopijuoti; failas su `.pub`):
-```powershell
-Get-Content $env:USERPROFILE\.ssh\id_ed25519.pub
+```bash
+cat ~/.ssh/id_ed25519.pub
 ```
 Nukopijuok visą eilutę (`ssh-ed25519 AAAA… vartotojas@kompiuteris`). **Privataus** rakto (`id_ed25519` be `.pub`) niekur nesiųsk.
 
@@ -297,7 +317,7 @@ Nukopijuok visą eilutę (`ssh-ed25519 AAAA… vartotojas@kompiuteris`). **Priva
 
 ### 4.2. Pirmas prisijungimas ir bazinis paruošimas
 **Prisijunk (💻 PC):**
-```powershell
+```bash
 ssh root@<SERVERIO-IP>
 ```
 Į klausimą „Are you sure you want to continue connecting" atsakyk `yes`. Terminalo eilutė turi pasikeisti į `root@…:~#` — dabar komandos vykdomos serveryje.
@@ -337,7 +357,7 @@ exit
 ```
 
 ### 4.3. Prisijunk kaip `deploy`
-```powershell
+```bash
 ssh deploy@<SERVERIO-IP>
 ```
 ✅ **Patikra (🖥️ Serveris):**
@@ -415,8 +435,8 @@ Savo domeno DNS valdyme pridėk du **A** įrašus (jei jau yra seni `A` ar `AAAA
 | A | `www` | `<SERVERIO-IP>` | automatinis / 300 |
 
 Patikra (💻 PC), pasklidimas gali užtrukti nuo kelių minučių iki kelių valandų:
-```powershell
-nslookup valdopalapines.lt
+```bash
+getent hosts valdopalapines.lt
 ```
 Turi parodyti tavo serverio IP.
 
@@ -433,7 +453,7 @@ docker compose ps
 ✅ **Patikra:** `docker compose ps` rodo du konteinerius (`web`, `caddy`), `web` būsena `Up … (healthy)` (gali užtrukti iki ~1 min).
 
 ### 5.3. HTTPS ir galutinė patikra
-Kai tik `nslookup` rodo teisingą IP, Caddy per ~minutę **pats** gauna nemokamą Let's Encrypt sertifikatą (nieko daryti nereikia).
+Kai tik `getent hosts` rodo teisingą IP, Caddy per ~minutę **pats** gauna nemokamą Let's Encrypt sertifikatą (nieko daryti nereikia).
 ```bash
 docker compose logs caddy | tail -20     # ieškok žodžių "certificate obtained successfully"
 ```
@@ -494,7 +514,7 @@ Kai įrašei, **ištrink privatų raktą iš serverio** (jis jau GitHub'e): 🖥
 
 ### 6.4. Išbandyk (💻 PC)
 > ⚠️ Nuo šiol **kiekvienas `git push` į `main` šakos automatiškai atnaujina gyvą svetainę.**
-```powershell
+```bash
 git commit --allow-empty -m "Testinis deploy"
 git push origin main
 ```
@@ -575,7 +595,9 @@ Kur rašyti: **PC** = tavo `.env`; **Serveris** = `/opt/valdopalapines/.env`.
 
 | Simptomas | Tikėtina priežastis | Ką daryti |
 |---|---|---|
-| `npm`/`npx` „running scripts is disabled" | Windows blokuoja skriptus | `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned` |
+| `npm ci` – „can only install packages when your package.json and package-lock.json … are in sync" | Ne ta Node versija (naujesnė nei 22) | `node -v`; jei ne `v22.…` – `fnm use 22` (arba `cd` į projekto aplanką iš naujo) |
+| „Cannot find module @rollup/rollup-win32-…" ar kitos klaidos su `win32` | Komanda paleista Windows PowerShell'e, ne WSL | Atidaryk **Ubuntu** langą ir dirbk projekto kopijoje `~/dev/valdo-palapines` |
+| `npm ci` / `npm run dev` WSL'e labai lėti | Projektas Windows diske (`/mnt/c/…`) | Klonuok iš naujo į `~/dev` (žr. 1.3) |
 | Svetainė lokaliai krenta su klaida apie `PROJECT_ID` | `.env` neužpildytas/su klaida | Patikrink `NEXT_PUBLIC_SANITY_PROJECT_ID` (be tarpų), paleisk `npm run dev` iš naujo |
 | Katalogas, galerija tušti | Neįkeltas turinys arba neteisingas dataset | `npm run seed`; patikrink, kad Sanity dataset `production` ir **Public** |
 | `npm run seed` – „Trūksta … SANITY_API_WRITE_TOKEN" | Eilutė užkomentuota (`#`) arba tuščia | Nuimk `#`, įklijuok tokeną |
@@ -601,8 +623,8 @@ Kur rašyti: **PC** = tavo `.env`; **Serveris** = `/opt/valdopalapines/.env`.
 - **Backupai:**
   - Hetzner **Backups** (savaitinės serverio kopijos, įjungtos 4.1) – patikrink, kad jos kuriasi.
   - Sanity turinio kopija **iš savo PC** (serveryje Node nėra, todėl cron jame neveiks):
-    ```powershell
-    cd C:\dev\valdo-palapines
+    ```bash
+    cd ~/dev/valdo-palapines
     npx sanity login
     npx sanity dataset export production sanity-backup.tar.gz
     ```
@@ -610,7 +632,7 @@ Kur rašyti: **PC** = tavo `.env`; **Serveris** = `/opt/valdopalapines/.env`.
 - **Uptime:** nemokama paslauga UptimeRobot (https://uptimerobot.com) – prideda HTTPS monitorių `https://valdopalapines.lt`, siunčia el. laišką, jei svetainė neveikia.
 - **Priklausomybės:** Dependabot (`.github/dependabot.yml`) kas savaitę atidaro *Pull Request*'us GitHub'e. Peržiūrėk; jei CI žalias – *Merge*. Saugumo PR (ypač `next`) – nedelsiant. Sujungus automatiškai įsidiegia į gyvą svetainę.
 - **Rollback (kai po diegimo kažkas sulūžo)** – saugiausia iš PC:
-  ```powershell
+  ```bash
   git revert HEAD --no-edit
   git push origin main
   ```

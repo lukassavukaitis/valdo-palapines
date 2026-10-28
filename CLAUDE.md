@@ -18,8 +18,9 @@ Cloudflare Turnstile (optional) · GA4 + Meta Pixel/CAPI + custom consent banner
 Deploy: Docker (node:22-alpine) + Caddy on a Hetzner VPS, GitHub Actions SSH deploy on push to `main`.
 
 ## Commands
-Requires Node 22 (pinned in `.node-version`; not installed on every dev machine — check `node -v` first).
-With a newer Node/npm (24/11) `npm ci` fails on the lockfile; use fnm (`fnm exec --using 22 npm.cmd ci`).
+Develop on **Linux / WSL only** — native Windows is unsupported (the lockfile lacks win32 optional binaries,
+e.g. `@rollup/rollup-win32-x64-msvc`, so `sanity build/deploy` fails there). Requires Node 22 (pinned in
+`.node-version`, managed with fnm); with Node 24 / npm 11 `npm ci` rejects the lockfile.
 ```bash
 npm ci                 # install exactly per lockfile
 cp .env.example .env.local   # minimum: NEXT_PUBLIC_SANITY_PROJECT_ID, NEXT_PUBLIC_SANITY_DATASET
