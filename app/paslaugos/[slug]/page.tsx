@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { buildMetadata, SITE } from "@/lib/metadata";
 import { ProductJsonLd, EventVenueJsonLd } from "@/components/seo/json-ld";
@@ -10,19 +11,21 @@ export async function generateStaticParams() {
   return slugs.map((s) => ({ slug: s.slug }));
 }
 
-export async function generateMetadata({ params }: { params: { slug: string } }) {
-  const s = await getServiceBySlug(params.slug);
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const s = await getServiceBySlug(slug);
   if (!s) return {};
   return buildMetadata({
     title: s.name,
     description: s.description || `${s.name} — nuoma renginiams visoje Lietuvoje.`,
-    path: `/paslaugos/${params.slug}`,
+    path: `/paslaugos/${slug}`,
     image: s.imageUrl || "/og/default.jpg",
   });
 }
 
-export default async function ServicePage({ params }: { params: { slug: string } }) {
-  const s = await getServiceBySlug(params.slug);
+export default async function ServicePage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const s = await getServiceBySlug(slug);
   if (!s) notFound();
 
   const description = s.description || `${s.name} — nuoma renginiams visoje Lietuvoje.`;
@@ -30,7 +33,7 @@ export default async function ServicePage({ params }: { params: { slug: string }
 
   return (
     <article className="mx-auto max-w-content px-4 py-24 sm:px-6">
-      <ProductJsonLd name={s.name} description={description} image={image} slug={params.slug} />
+      <ProductJsonLd name={s.name} description={description} image={image} slug={slug} />
       <EventVenueJsonLd name={s.name} description={description} maxCapacity={500} />
 
       <div className="grid gap-10 lg:grid-cols-2">
@@ -65,9 +68,9 @@ export default async function ServicePage({ params }: { params: { slug: string }
             </p>
           )}
 
-          <a href="/#uzklausa" className="btn-primary mt-8">
+          <Link href="/#uzklausa" className="btn-primary mt-8">
             Gauti pasiūlymą
-          </a>
+          </Link>
         </div>
       </div>
     </article>

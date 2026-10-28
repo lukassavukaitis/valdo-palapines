@@ -16,6 +16,7 @@ export function CookieBanner() {
 
   useEffect(() => {
     // Rodom tik jei sprendimas dar nepriimtas
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (!getConsent()) setShow(true);
   }, []);
 
