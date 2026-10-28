@@ -37,6 +37,6 @@
     "styled-components": "^6.6.0",
     "tailwindcss": "^4.3.3",
     "tsx": "^4.23.15",
-    "typescript": "^5.9.3"
+    "typescript": "~5.9.3"
   }
 }
