@@ -101,6 +101,17 @@ npm -v
 ```
 ✅ **Patikra:** `git` rodo versiją, `node -v` rodo `v22.…`, `npm -v` rodo skaičių.
 
+> 💡 **Jei kompiuteryje jau yra kita Node versija** (pvz. 24) ir nenori jos trinti — naudok **fnm**, kuris
+> laiko kelias versijas šalia ir projekto aplanke pats įjungia 22 (pagal `.node-version` failą):
+> ```powershell
+> winget install Schniz.fnm
+> fnm install 22
+> fnm default system
+> if (!(Test-Path $PROFILE)) { New-Item -Force $PROFILE }
+> Add-Content $PROFILE 'fnm env --use-on-cd --shell powershell | Out-String | Invoke-Expression'
+> ```
+> Užsidaryk ir iš naujo atidaryk PowerShell, nueik į projekto aplanką — `node -v` turi rodyti `v22.…`.
+
 > ⚠️ **Jei `npm`/`npx` rašo „running scripts is disabled on this system"** — vieną kartą paleisk:
 > `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned` ir patvirtink `Y`.
 

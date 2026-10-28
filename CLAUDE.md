@@ -18,7 +18,8 @@ Cloudflare Turnstile (optional) · GA4 + Meta Pixel/CAPI + custom consent banner
 Deploy: Docker (node:22-alpine) + Caddy on a Hetzner VPS, GitHub Actions SSH deploy on push to `main`.
 
 ## Commands
-Requires Node 22 (not installed on every dev machine — check `node -v` first).
+Requires Node 22 (pinned in `.node-version`; not installed on every dev machine — check `node -v` first).
+With a newer Node/npm (24/11) `npm ci` fails on the lockfile; use fnm (`fnm exec --using 22 npm.cmd ci`).
 ```bash
 npm ci                 # install exactly per lockfile
 cp .env.example .env.local   # minimum: NEXT_PUBLIC_SANITY_PROJECT_ID, NEXT_PUBLIC_SANITY_DATASET
