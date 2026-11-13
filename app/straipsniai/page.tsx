@@ -31,7 +31,7 @@ export default async function BlogListPage() {
             <li key={p._id}>
               <Link href={`/straipsniai/${p.slug}`} className="group block">
                 <div
-                  className="aspect-[16/10] overflow-hidden rounded-xl2 bg-sand bg-cover bg-center"
+                  className="aspect-16/10 overflow-hidden rounded-xl2 bg-sand bg-cover bg-center"
                   style={p.coverUrl ? { backgroundImage: `url('${p.coverUrl}?w=800&auto=format')` } : undefined}
                   role="img"
                   aria-label={p.coverAlt || p.title}

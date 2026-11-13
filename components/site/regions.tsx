@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import { ChevronDown, MapPin } from "lucide-react";
 
@@ -29,9 +30,9 @@ export function Regions() {
             Atvežame ir sumontuojame įrangą visoje Lietuvoje — nuo Vilniaus iki
             Klaipėdos. Nematote savo miesto? Parašykite, beveik visada atvyksime.
           </p>
-          <a href="/#uzklausa" className="btn-primary mt-6">
+          <Link href="/#uzklausa" className="btn-primary mt-6">
             Klauskite dėl savo vietovės
-          </a>
+          </Link>
         </header>
 
         <div className="divide-y divide-ink/10 rounded-xl2 border border-ink/5 bg-ivory">

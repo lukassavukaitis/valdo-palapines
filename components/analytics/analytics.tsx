@@ -19,6 +19,8 @@ export function Analytics() {
   const [consent, setConsent] = useState<Consent | null>(null);
 
   useEffect(() => {
+    // Sutikimas yra localStorage (tik naršyklėje) — nuskaitom po hidratacijos
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setConsent(getConsent());
     const onChange = (e: Event) => setConsent((e as CustomEvent<Consent>).detail);
     window.addEventListener(CONSENT_EVENT, onChange);

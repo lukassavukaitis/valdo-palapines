@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getPostBySlug, getPostSlugs } from "@/lib/sanity.queries";
 import { buildMetadata, SITE } from "@/lib/metadata";
@@ -10,8 +11,9 @@ export async function generateStaticParams() {
   return slugs.map((s) => ({ slug: s.slug }));
 }
 
-export async function generateMetadata({ params }: { params: { slug: string } }) {
-  const post = await getPostBySlug(params.slug);
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const post = await getPostBySlug(slug);
   if (!post) return {};
   return buildMetadata({
     title: post.seo?.metaTitle || post.title,
@@ -22,8 +24,9 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   });
 }
 
-export default async function PostPage({ params }: { params: { slug: string } }) {
-  const post = await getPostBySlug(params.slug);
+export default async function PostPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const post = await getPostBySlug(slug);
   if (!post) notFound();
 
   const articleLd = {
@@ -69,7 +72,7 @@ export default async function PostPage({ params }: { params: { slug: string } })
 
       {post.coverUrl && (
         <div
-          className="mx-auto mt-8 aspect-[16/9] max-w-3xl rounded-xl2 bg-sand bg-cover bg-center"
+          className="mx-auto mt-8 aspect-video max-w-3xl rounded-xl2 bg-sand bg-cover bg-center"
           style={{ backgroundImage: `url('${post.coverUrl}?w=1600&auto=format')` }}
           role="img"
           aria-label={post.coverAlt || post.title}
@@ -81,9 +84,9 @@ export default async function PostPage({ params }: { params: { slug: string } })
       </div>
 
       <div className="mx-auto mt-12 max-w-2xl border-t border-ink/10 pt-8">
-        <a href="/#uzklausa" className="btn-primary">
+        <Link href="/#uzklausa" className="btn-primary">
           Gauti pasiūlymą savo šventei
-        </a>
+        </Link>
       </div>
     </article>
   );

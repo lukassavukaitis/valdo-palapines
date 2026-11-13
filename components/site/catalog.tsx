@@ -65,7 +65,7 @@ export function Catalog({
                 className="group flex flex-col overflow-hidden rounded-xl2 border border-ink/5 bg-ivory"
               >
                 <div
-                  className="aspect-[4/3] bg-sand bg-cover bg-center"
+                  className="aspect-4/3 bg-sand bg-cover bg-center"
                   style={s.imageUrl ? { backgroundImage: `url('${s.imageUrl}?w=800&auto=format')` } : undefined}
                   role="img"
                   aria-label={s.imageAlt || s.name}

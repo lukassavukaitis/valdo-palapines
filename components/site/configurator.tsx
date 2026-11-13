@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useMemo, useState } from "react";
 import { ShieldCheck, Truck, Gem, ReceiptText } from "lucide-react";
 import { recommend } from "@/lib/configurator";
@@ -90,9 +91,9 @@ export function Configurator() {
           <Stat label="Plotas" value={`~${result.area} m²`} />
           <Stat label="Stalai" value={`${result.tables} vnt.`} />
           <Stat label="Kėdės" value={`${result.chairs} vnt.`} />
-          <a href="/#uzklausa" className="btn-primary col-span-2 mt-1">
+          <Link href="/#uzklausa" className="btn-primary col-span-2 mt-1">
             Gauti tikslų pasiūlymą
-          </a>
+          </Link>
         </div>
       </div>
     </section>

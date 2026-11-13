@@ -11,7 +11,7 @@ export function Hero() {
       : {
           initial: { opacity: 0, y: 16 },
           animate: { opacity: 1, y: 0 },
-          transition: { duration: 0.6, delay, ease: [0.22, 1, 0.36, 1] },
+          transition: { duration: 0.6, delay, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] },
         };
 
   return (
@@ -20,7 +20,7 @@ export function Hero() {
       <div className="absolute inset-0 -z-10">
         <div className="h-full w-full bg-[url('/hero/tent.jpg')] bg-cover bg-center" />
         {/* Tamsus gradientas įskaitomumui */}
-        <div className="absolute inset-0 bg-gradient-to-b from-ink/60 via-ink/40 to-ink/70" />
+        <div className="absolute inset-0 bg-linear-to-b from-ink/60 via-ink/40 to-ink/70" />
       </div>
 
       <div className="mx-auto flex max-w-content flex-col items-center px-4 pb-14 pt-28 text-center sm:px-6 sm:pt-36">
@@ -50,13 +50,13 @@ export function Hero() {
         <motion.form
           {...rise(0.24)}
           action="/#uzklausa"
-          className="mt-10 w-full max-w-3xl rounded-xl2 border border-ivory/15 bg-ivory/95 p-2 shadow-xl backdrop-blur sm:flex sm:items-stretch sm:gap-2"
+          className="mt-10 w-full max-w-3xl rounded-xl2 border border-ivory/15 bg-ivory/95 p-2 shadow-xl backdrop-blur-sm sm:flex sm:items-stretch sm:gap-2"
         >
           <Field icon={<CalendarDays size={18} />} label="Data">
             <input
               type="date"
               name="date"
-              className="w-full bg-transparent text-sm text-ink outline-none"
+              className="w-full bg-transparent text-sm text-ink outline-hidden"
             />
           </Field>
           <Field icon={<Users size={18} />} label="Žmonių skaičius">
@@ -65,7 +65,7 @@ export function Hero() {
               name="guests"
               min={1}
               placeholder="pvz. 80"
-              className="w-full bg-transparent text-sm text-ink outline-none placeholder:text-stone/60"
+              className="w-full bg-transparent text-sm text-ink outline-hidden placeholder:text-stone/60"
             />
           </Field>
           <Field icon={<MapPin size={18} />} label="Miestas">
@@ -73,7 +73,7 @@ export function Hero() {
               type="text"
               name="city"
               placeholder="pvz. Kaunas"
-              className="w-full bg-transparent text-sm text-ink outline-none placeholder:text-stone/60"
+              className="w-full bg-transparent text-sm text-ink outline-hidden placeholder:text-stone/60"
             />
           </Field>
           <button type="submit" className="btn-primary mt-2 w-full sm:mt-0 sm:w-auto">

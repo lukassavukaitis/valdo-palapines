@@ -19,10 +19,10 @@ const quoteSchema = z.object({
   venue: z.string().max(300).optional().default(""),
   items: z.array(z.object({ name: z.string().max(200) })).max(50).optional().default([]),
   name: z.string().min(1, "Įveskite vardą").max(100),
-  email: z.string().email("Neteisingas el. paštas").max(200),
+  email: z.email("Neteisingas el. paštas").max(200),
   phone: z.string().min(6, "Įveskite telefoną").max(40),
   message: z.string().max(2000).optional().default(""),
-  gdpr: z.literal(true, { errorMap: () => ({ message: "Reikalingas sutikimas" }) }),
+  gdpr: z.literal(true, { error: "Reikalingas sutikimas" }),
   website: z.string().max(0).optional(), // honeypot — turi likti tuščias
   turnstileToken: z.string().optional(),
   metaEventId: z.string().optional(), // dedup su naršyklės Meta Pixel
@@ -76,7 +76,7 @@ export async function POST(req: Request) {
     return NextResponse.json(
       {
         error: "Patikrinkite formos laukus",
-        issues: parsed.error.flatten().fieldErrors,
+        issues: z.flattenError(parsed.error).fieldErrors,
       },
       { status: 422 }
     );

@@ -290,7 +290,7 @@ export function QuoteForm({
 }
 
 const input =
-  "w-full rounded-lg border border-ink/15 bg-ivory px-3.5 py-2.5 text-sm text-ink outline-none focus:border-forest focus:ring-2 focus:ring-forest/20";
+  "w-full rounded-lg border border-ink/15 bg-ivory px-3.5 py-2.5 text-sm text-ink outline-hidden focus:border-forest focus:ring-2 focus:ring-forest/20";
 
 function Field({
   label,

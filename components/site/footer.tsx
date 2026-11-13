@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { Facebook, Instagram, Phone, Mail } from "lucide-react";
+import { Phone, Mail } from "lucide-react";
+import { FacebookIcon, InstagramIcon } from "@/components/ui/social-icons";
 import { getSiteSettings } from "@/lib/sanity.queries";
 import { SITE } from "@/lib/metadata";
 
@@ -55,12 +56,12 @@ export async function Footer() {
           <div className="mt-4 flex gap-3">
             {s?.facebook && (
               <a href={s.facebook} aria-label="Facebook" className="text-ivory/70 hover:text-ivory">
-                <Facebook size={20} />
+                <FacebookIcon size={20} />
               </a>
             )}
             {s?.instagram && (
               <a href={s.instagram} aria-label="Instagram" className="text-ivory/70 hover:text-ivory">
-                <Instagram size={20} />
+                <InstagramIcon size={20} />
               </a>
             )}
           </div>

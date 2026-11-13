@@ -40,7 +40,7 @@ export async function POST(req: Request) {
   }
 
   // Tag'ai sutampa su _type reikšmėmis (žr. lib/sanity.queries.ts)
-  revalidateTag(_type);
+  revalidateTag(_type, { expire: 0 });
 
   return NextResponse.json({ revalidated: true, type: _type, now: Date.now() });
 }

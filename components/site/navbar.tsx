@@ -43,7 +43,7 @@ export function Navbar() {
   return (
     <header
       className={`sticky top-0 z-50 transition-shadow ${
-        scrolled ? "glass shadow-sm" : "bg-ivory/40 backdrop-blur-sm"
+        scrolled ? "glass shadow-xs" : "bg-ivory/40 backdrop-blur-xs"
       }`}
     >
       <nav

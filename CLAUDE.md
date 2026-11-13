@@ -12,8 +12,8 @@ All user-facing text, comments and docs are in **Lithuanian** — keep that styl
 guides). Keep new code comment density and naming consistent with the surrounding files.
 
 ## Stack
-Next.js 14 (App Router, `output: "standalone"`) · React 18 · TypeScript (strict) · Tailwind 3 ·
-Framer Motion · Sanity v3 (CMS, Studio hosted on sanity.studio) · Resend (e-mail) · Zod ·
+Next.js 16 (App Router, `output: "standalone"`) · React 19 · TypeScript 5.9 (strict) · Tailwind 4 ·
+Framer Motion · Sanity v6 (CMS, Studio hosted on sanity.studio) · Resend (e-mail) · Zod ·
 Cloudflare Turnstile (optional) · GA4 + Meta Pixel/CAPI + custom consent banner (optional).
 Deploy: Docker (node:22-alpine) + Caddy on a Hetzner VPS, GitHub Actions SSH deploy on push to `main`.
 
@@ -50,6 +50,8 @@ There is no test suite; CI gates are lint + typecheck + build (`.github/workflow
   Studio field labels in the neighbour guide must match `sanity/schemas/*`.
 
 ## Conventions and gotchas
+- Tailwind 4: theme lives in `app/globals.css` (`@theme`); `next/font` CSS vars are `--font-cormorant` / `--font-inter`
+  (must not share names with the `--font-display` / `--font-sans` theme vars). Lint is plain `eslint .` (`eslint.config.mjs`).
 - **Sanity queries** must include the `PUBLISHED` filter (`!(_id in path("drafts.**"))`); with
   `SANITY_API_READ_TOKEN` set, drafts are otherwise returned and become public.
 - Data fetching uses `sanityFetch` (ISR `revalidate` 60 s + tag per `_type`); webhook calls
@@ -66,18 +68,14 @@ There is no test suite; CI gates are lint + typecheck + build (`.github/workflow
 - Secrets live only in `.env` (never commit). `SANITY_API_WRITE_TOKEN` is for local seeding only, never on the server.
 
 ## Known issues / TODO (from the review)
-1. **Upgrade Next.js 14.2.5 → latest 15.5.x** (14 is EOL; 40+ advisories incl. critical image-optimizer RCE
-   fixed only in ≥15.5.24). Update `eslint-config-next` with it; check `next/image`, route handler and
-   `cookies`/`headers` async API changes.
-2. Move `sanity`, `@sanity/vision`, `styled-components` to `devDependencies` (Studio is hosted separately);
-   this removes most transitive audit findings (vite, decompress, adm-zip, glob, minimatch, …).
-3. `zod` 3.25 has a high advisory fixed in zod 4 — plan an upgrade.
-4. After 1–2: remove `continue-on-error: true` from the `npm audit` step in `deploy.yml`.
-5. Replace placeholder `SITE.phone`; consider sourcing JSON-LD contact data from Sanity.
-6. Possible simplification: drop webhook revalidation (ISR 60 s suffices), pick Turnstile **or** honeypot+limiter,
+1. Replace placeholder `SITE.phone`; consider sourcing JSON-LD contact data from Sanity.
+2. Possible simplification: drop webhook revalidation (ISR 60 s suffices), pick Turnstile **or** honeypot+limiter,
    remove Meta CAPI/consent code if ads are not used.
-7. Hosting alternative worth considering: Cloudflare Pages/Vercel instead of VPS+Docker+Caddy (no OS patching).
-8. Caddy has no CSP / Permissions-Policy; `appleboy/ssh-action` is pinned by tag, not SHA.
+3. Hosting alternative worth considering: Cloudflare Pages/Vercel instead of VPS+Docker+Caddy (no OS patching).
+4. Caddy has no CSP / Permissions-Policy; `appleboy/ssh-action` is pinned by tag, not SHA.
+5. TypeScript is held at 5.9: `typescript-eslint` (via `eslint-config-next`) rejects TS 7. Revisit when it supports it.
+   Note `npm run typecheck` calls the project's `typescript` directly because Sanity's CLI installs a different `tsc` bin.
+6. Remaining `npm audit` findings are dev-only (Sanity Studio tooling); prod audit shows 3 low (deepmerge via resend).
 
 ## Security checklist before merging changes
 - No new unescaped user input in HTML/e-mail; no secrets in `NEXT_PUBLIC_*`.
